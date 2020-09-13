@@ -1,0 +1,14 @@
+﻿public enum GamePacketType
+{
+    ENTER_GAME_WORLD = 1,
+    CREATE_CHARACTER = 2,
+
+    SET_ATTACK_TARGET = 12,
+
+    USE_SKILL = 21,
+
+    SPAWN_CHARACTER = 30,
+    DESPAWN_CHARACTER = 31,
+    EXECUTE_ATTACK_TARGET = 32,
+    SET_DESTINATION = 33,
+}
