@@ -18,23 +18,40 @@ public class Character : MonoBehaviour
 
     public CharacterData Data { get; set; }
 
+    public Dictionary<StatType, object> stats = new Dictionary<StatType, object>()
+    {
+        { StatType.NAME, "Object" },
+        { StatType.LEVEL, (short)1 },
+        { StatType.HEALTH, (int)100 },
+        { StatType.MAX_HEALTH, (int)100 },
+        { StatType.MANA, (int)100 },
+        { StatType.MAX_MANA, (int)100 },
+        { StatType.EXPERIENCE, (int)0 },
+        { StatType.GOLD, (int)0 },
+        { StatType.RACE, (byte)0 },
+        { StatType.CLASS, (byte)0 },
+        { StatType.POS_X, (short)0 },
+        { StatType.POS_Z, (short)0 },
+        { StatType.TARGET_ID, (int)-1 },
+    };
+
+    public event Action<StatType, object> OnStatChanged = delegate { };
+
     public void MoveTo(Vector3 point)
     {
         this.destination = point;
+    }
+
+    public void SetStat(StatType stat, object val)
+    {
+        stats[stat] = val;
+        OnStatChanged(stat, val);
     }
 
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
         destination = transform.position;
-    }
-
-    private void OnMouseDown()
-    {
-        if (Data != null)
-        {
-            SelectionController.Instance.RequestSelectTarget(Data.id, 1);
-        }
     }
 
     private void Update()
@@ -67,5 +84,13 @@ public class Character : MonoBehaviour
                 Animator.SetBool("move", false);
             }
         }
+    }
+
+    public void LookAt(Vector3 pos)
+    {
+        Vector3 target = pos - transform.position;
+        target.y = 0;
+
+        transform.rotation = Quaternion.LookRotation(target);
     }
 }

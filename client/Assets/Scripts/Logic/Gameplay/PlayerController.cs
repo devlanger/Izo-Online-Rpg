@@ -34,24 +34,34 @@ public class PlayerController : MonoBehaviour
             Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
             if(Physics.Raycast(r, out RaycastHit hit, clickMask))
             {
-                Vector3 destination = hit.point;
-                destination.x = Mathf.RoundToInt(destination.x);
-                destination.y = Mathf.RoundToInt(destination.y);
-                destination.z = Mathf.RoundToInt(destination.z);
+                Character target = hit.collider.GetComponent<Character>();
+                
+                if (target != null)
+                {
+                    SelectionController.Instance.RequestSelectTarget(target.Data.id, 1);
+                }
+                else
+                {
 
-                Vector3 dir = destination - Target.transform.position;
-                dir.y = 0;
+                    Vector3 destination = hit.point;
+                    destination.x = Mathf.RoundToInt(destination.x);
+                    destination.y = Mathf.RoundToInt(destination.y);
+                    destination.z = Mathf.RoundToInt(destination.z);
 
-                Target.transform.rotation = Quaternion.LookRotation(dir);
+                    Vector3 dir = destination - Target.transform.position;
+                    dir.y = 0;
 
-                Target.MoveTo(hit.point);
+                    Target.transform.rotation = Quaternion.LookRotation(dir);
 
-                Packet packet = new Packet();
-                packet.writer.Write((byte)11);
-                packet.writer.Write((short)destination.x);
-                packet.writer.Write((short)destination.z);
+                    Target.MoveTo(hit.point);
 
-                Connection.Instance.SendData(packet);
+                    Packet packet = new Packet();
+                    packet.writer.Write((byte)11);
+                    packet.writer.Write((short)destination.x);
+                    packet.writer.Write((short)destination.z);
+
+                    Connection.Instance.SendData(packet);
+                }
             }
         }
     }

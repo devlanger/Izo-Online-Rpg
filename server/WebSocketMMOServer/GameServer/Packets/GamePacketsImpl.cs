@@ -94,6 +94,8 @@ namespace WebSocketMMOServer
                     container.SetStat(StatType.EXPERIENCE, (int)characterData["exp"]);
                 }
 
+                client.BindEvents();
+
                 ServerManager.Instance.CharactersManager.AddCharacter(character);
                 ServerManager.Instance.CharactersManager.clients.Add(character.Id, client);
 
@@ -115,6 +117,8 @@ namespace WebSocketMMOServer
                 packet.writer.Write((int)client.SelectedCharacter.Id);
                 packet.writer.Write((short)characterData["pos_x"]);
                 packet.writer.Write((short)characterData["pos_z"]);
+                packet.writer.Write((short)characterData["lvl"]);
+                packet.writer.Write((int)characterData["exp"]);
 
                 Server.Instance.SendData(client.ip, packet);
             }

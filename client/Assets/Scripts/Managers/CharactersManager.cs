@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpawnManager : MonoBehaviour
+public class CharactersManager : MonoBehaviour
 {
-    public static SpawnManager Instance { get; set; }
+    public static CharactersManager Instance { get; set; }
 
     public Dictionary<int, Character> characters = new Dictionary<int, Character>();
 

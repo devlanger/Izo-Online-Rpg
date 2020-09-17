@@ -15,17 +15,59 @@ public class GamePacketsImpl
         { GamePacketType.DESPAWN_CHARACTER, DespawnCharacterImpl },
         { GamePacketType.EXECUTE_ATTACK_TARGET, ExcecuteAttackTargetImpl},
         { GamePacketType.SET_DESTINATION, SetDestinationImpl },
+        { GamePacketType.DAMAGE_INFO, DamageInfoImpl },
+        { GamePacketType.SYNC_STAT, SyncStatImpl },
     };
+
+    private static void SyncStatImpl(BinaryReader reader)
+    {
+        int targetId = reader.ReadInt32();
+        StatType type = (StatType)reader.ReadByte();
+        Character target = CharactersManager.Instance.GetPlayer(targetId);
+
+        switch (type)
+        {
+            case StatType.HEALTH:
+            case StatType.MANA:
+            case StatType.EXPERIENCE:
+            case StatType.GOLD:
+                target.SetStat(type, reader.ReadInt32());
+                break;
+            case StatType.LEVEL:
+                target.SetStat(type, reader.ReadInt16());
+                break;
+
+        }
+    }
+
+    private static void DamageInfoImpl(BinaryReader reader)
+    {
+        int targetId = reader.ReadInt32();
+        ushort damageValue = reader.ReadUInt16();
+        byte damageLabelColor = reader.ReadByte();
+
+        CombatManager.Instance.DealDamage(new DamageInfo()
+        {
+            targetId = targetId,
+            damage = damageValue,
+            type = damageLabelColor
+        });
+    }
 
     private static void ExcecuteAttackTargetImpl(BinaryReader reader)
     {
         int id = reader.ReadInt32();
         int targetId = reader.ReadInt32();
 
-        Character c = SpawnManager.Instance.GetPlayer(id);
+        Character c = CharactersManager.Instance.GetPlayer(id);
+        Character target = CharactersManager.Instance.GetPlayer(targetId);
         if(c != null)
         {
-            c.GetComponentInChildren<Animator>().SetTrigger("attack");
+            c.GetComponentInChildren<Animator>().SetTrigger("attack"); 
+            if (target != null)
+            {
+                c.LookAt(target.transform.position);
+            }
         }
     }
 
@@ -55,7 +97,7 @@ public class GamePacketsImpl
             @class = reader.ReadByte(),
         };
         Debug.Log(data.id + " " + data.nickname);
-        SpawnManager.Instance.SpawnCharacter(data);
+        CharactersManager.Instance.SpawnCharacter(data);
     }
 
     private static void SetDestinationImpl(BinaryReader reader)
@@ -65,7 +107,7 @@ public class GamePacketsImpl
         short posX = reader.ReadInt16();
         short posY = reader.ReadInt16();
 
-        Character p = SpawnManager.Instance.GetPlayer(id);
+        Character p = CharactersManager.Instance.GetPlayer(id);
         if(p != null)
         {
             Vector3 destination = new Vector3(posX, 0, posY);
@@ -81,7 +123,7 @@ public class GamePacketsImpl
     {
         int id = reader.ReadInt32();
 
-        SpawnManager.Instance.DespawnCharacter(id);
+        CharactersManager.Instance.DespawnCharacter(id);
     }
 
     private static void EnterWorldImpl(BinaryReader reader)
@@ -89,8 +131,14 @@ public class GamePacketsImpl
         int id = reader.ReadInt32();
         short posX = reader.ReadInt16();
         short posY = reader.ReadInt16();
+        
+        short lvl = reader.ReadInt16();
+        int exp = reader.ReadInt16();
 
-        Character c = SpawnManager.Instance.GetPlayer(id);
+        Character c = CharactersManager.Instance.GetPlayer(id);
+        c.stats[StatType.EXPERIENCE] = exp;
+        c.stats[StatType.LEVEL] = lvl;
+        
         Debug.Log("Set player: " + c.Data.id);
         PlayerController.Instance.SetPlayer(c);
 

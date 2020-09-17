@@ -10,10 +10,10 @@ public class UINicknames : MonoBehaviour
 
     private void Start()
     {
-        SpawnManager.Instance.OnCharacterSpawned += Instance_OnCharacterSpawned;
-        SpawnManager.Instance.OnCharacterDespawned += Instance_OnCharacterDespawned;
+        CharactersManager.Instance.OnCharacterSpawned += Instance_OnCharacterSpawned;
+        CharactersManager.Instance.OnCharacterDespawned += Instance_OnCharacterDespawned;
 
-        foreach (var item in SpawnManager.Instance.characters)
+        foreach (var item in CharactersManager.Instance.characters)
         {
             if (!labels.ContainsKey(item.Key))
             {

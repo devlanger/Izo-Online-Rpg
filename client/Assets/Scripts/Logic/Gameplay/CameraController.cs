@@ -9,7 +9,7 @@ public class CameraController : MonoBehaviour
 
     public Transform target;
 
-    private void Update()
+    private void LateUpdate()
     {
         if(target == null)
         {

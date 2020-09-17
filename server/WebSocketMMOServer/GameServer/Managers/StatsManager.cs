@@ -121,6 +121,8 @@ namespace WebSocketMMOServer.GameServer
             { StatType.TARGET_ID, (int)-1 },
         };
 
+        public event Action<StatType, object> OnStatChanged = delegate { };
+
         public StatsContainer(StatsManager manager)
         {
             this.manager = manager;
@@ -144,6 +146,7 @@ namespace WebSocketMMOServer.GameServer
         public void SetStat(StatType type, object v)
         {
             stats[type] = v;
+            OnStatChanged(type, v);
         }
     }
 }

@@ -17,6 +17,12 @@ public class Connection : MonoBehaviour
     private string ip = "127.0.0.1:3000";
 
     [SerializeField]
+    private string remoteIp = "127.0.0.1:3000";
+
+    [SerializeField]
+    private bool useRemoteIp = false;
+
+    [SerializeField]
     private GameObject connectionPrefab;
 
     private Coroutine routine;
@@ -64,8 +70,9 @@ public class Connection : MonoBehaviour
 
     async void TryConnect()
     {
+        string ip = useRemoteIp ? remoteIp : this.ip;
         websocket = new WebSocket(ip);
-
+        Debug.Log("Connect to: " + ip);
         websocket.OnOpen += () =>
         {
             connected = true;

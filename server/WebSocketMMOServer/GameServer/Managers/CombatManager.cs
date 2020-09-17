@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using WebSocketMMOServer.GameServer.Models;
 using WebSocketMMOServer.GameServer.Packets.Outgoing;
 
 namespace WebSocketMMOServer.GameServer
@@ -30,6 +31,7 @@ namespace WebSocketMMOServer.GameServer
                 }
 
                 int targetId = (int)character.Value.GetStat(StatType.TARGET_ID);
+                ushort damage = 25;
                 if (targetId != -1 && targetId != character.Value.Id)
                 {
                     if (tickManager.Time > character.Value.LastAttackTime + 1)
@@ -42,15 +44,20 @@ namespace WebSocketMMOServer.GameServer
                                 StatsContainer container = target.GetStatsContainer();
 
                                 int health = (int)container.GetStat(StatType.HEALTH).value;
-                                container.SetStat(StatType.HEALTH, health - 25);
+                                container.SetStat(StatType.HEALTH, health - damage);
 
                                 foreach (var item in charactersManager.GetClientsInRange(character.Value.Position, 50))
                                 {
-                                    Server.Instance.SendData(item.Value.ip, new ExecuteAttackPacket(new Models.AttackData()
+                                    AttackData data = new AttackData()
                                     {
                                         attackerId = character.Value.Id,
-                                        targetId = target.Id
-                                    }));
+                                        targetId = target.Id,
+                                        damage = damage,
+                                        damageType = 0
+                                    };
+
+                                    Server.Instance.SendData(item.Value.ip, new ExecuteAttackPacket(data));
+                                    Server.Instance.SendData(item.Value.ip, new DamageInfoPacket(data));
                                 }
 
                                 if (target.IsDead)
@@ -62,6 +69,14 @@ namespace WebSocketMMOServer.GameServer
                                         StatsContainer killerContainer = character.Value.GetStatsContainer();
                                         int exp = (int)killerContainer.GetStat(StatType.EXPERIENCE).value;
                                         killerContainer.SetStat(StatType.EXPERIENCE, exp + 25);
+
+                                        if((int)killerContainer.GetStat(StatType.EXPERIENCE).value > 100)
+                                        {
+                                            killerContainer.SetStat(StatType.EXPERIENCE, 0);
+
+                                            short level = (short)killerContainer.GetStat(StatType.LEVEL).value;
+                                            killerContainer.SetStat(StatType.LEVEL, (short)(level + 1));
+                                        }
                                     }
                                 }
 

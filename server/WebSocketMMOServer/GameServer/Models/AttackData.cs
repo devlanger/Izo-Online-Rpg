@@ -8,5 +8,7 @@ namespace WebSocketMMOServer.GameServer.Models
     {
         public int attackerId;
         public int targetId;
+        public ushort damage;
+        public byte damageType;
     }
 }

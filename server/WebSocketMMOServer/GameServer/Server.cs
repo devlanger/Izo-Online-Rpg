@@ -20,11 +20,13 @@ namespace WebSocketMMOServer.GameServer
             Instance = this;
             manager = new ServerManager();
 
-            server = new WatsonWsServer("127.0.0.1", 3001, false);
+            server = new WatsonWsServer("", 3005, false);
             server.ClientConnected += ClientConnected;
             server.ClientDisconnected += ClientDisconnected;
             server.MessageReceived += MessageReceived;
             server.Start();
+
+            Console.WriteLine("Server started.");
         }
 
         public void ClientConnected(object sender, ClientConnectedEventArgs args)
