@@ -20,7 +20,26 @@ public class GamePacketsImpl
         { GamePacketType.SYNC_STAT, SyncStatImpl },
         { GamePacketType.SYNC_INVENTORY, SyncInventoryImpl },
         { GamePacketType.EXECUTE_SKILL_TARGET, ExecuteSkillImpl },
+        { GamePacketType.SET_POSITION, SetPositionImpl },
     };
+
+    private static void SetPositionImpl(BinaryReader reader)
+    {
+        int targetId = reader.ReadInt32();
+        short posX = reader.ReadInt16();
+        short posZ = reader.ReadInt16();
+
+        Character attacker = CharactersManager.Instance.GetPlayer(targetId);
+        if (attacker != null)
+        {
+            Vector3 pos = attacker.transform.position;
+            pos.x = posX;
+            pos.z = posZ;
+
+            attacker.transform.position = pos;
+            attacker.MoveTo(pos);
+        }
+    }
 
     private static void ExecuteSkillImpl(BinaryReader reader)
     {
@@ -154,6 +173,7 @@ public class GamePacketsImpl
         Character p = CharactersManager.Instance.GetPlayer(id);
         if (p != null)
         {
+            Debug.Log("Move " + p.Data.id + " to " + posX);
             Vector3 destination = new Vector3(posX, 0, posY);
             Vector3 pos = p.transform.position;
             pos.y = 0;

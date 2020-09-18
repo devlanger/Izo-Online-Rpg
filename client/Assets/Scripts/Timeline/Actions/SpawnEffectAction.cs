@@ -28,7 +28,7 @@ public class SpawnEffectAction : TimelineAction
         EffectController effectController = inst.GetComponent<EffectController>();
         if(effectController != null)
         {
-            effectController.Start(user, target);
+            effectController.Run(user, target);
         }
     }
 }

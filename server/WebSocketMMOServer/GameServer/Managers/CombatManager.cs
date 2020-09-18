@@ -56,6 +56,13 @@ namespace WebSocketMMOServer.GameServer
                                 DealDamage(character.Value, target, data);
                                 character.Value.LastAttackTime = tickManager.Time;
                             }
+                            else
+                            {
+                                if(character.Value is Mob)
+                                {
+                                    character.Value.SetDestination((short)target.GetStat(StatType.POS_X), (short)target.GetStat(StatType.POS_Z));
+                                }
+                            }
                         }
                     }
                 }
@@ -64,10 +71,16 @@ namespace WebSocketMMOServer.GameServer
 
         public void DealDamage(Character character, Character target, AttackData attack)
         {
-            StatsContainer container = target.GetStatsContainer();
+            StatsContainer targetContainer = target.GetStatsContainer();
 
-            int health = (int)container.GetStat(StatType.HEALTH).value;
-            container.SetStat(StatType.HEALTH, health - attack.damage);
+            if (target is Mob)
+            {
+                targetContainer.SetStat(StatType.TARGET_ID, (int)character.Id);
+                target.SelectionState = SelectionState.ATTACK;
+            }
+
+            int health = (int)targetContainer.GetStat(StatType.HEALTH).value;
+            targetContainer.SetStat(StatType.HEALTH, health - attack.damage);
 
             foreach (var item in charactersManager.GetClientsInRange(character.Position, 50))
             {
@@ -76,7 +89,18 @@ namespace WebSocketMMOServer.GameServer
 
             if (target.IsDead)
             {
-                ServerManager.Instance.CharactersManager.DespawnCharacter(target);
+                if (target is Player)
+                {
+                    target.GetStatsContainer().SetStat(StatType.HEALTH, (int)30);
+                    target.SnapToPosition((short)80, (short)105);
+                }
+                else
+                {
+                    ServerManager.Instance.CharactersManager.DespawnCharacter(target);
+                }
+
+                character.SelectionState = SelectionState.SELECTION;
+                target.SelectionState = SelectionState.SELECTION;
 
                 if (character is Player)
                 {
@@ -107,6 +131,12 @@ namespace WebSocketMMOServer.GameServer
                             });
                         }
                     }
+                }
+                
+                if(character is Mob)
+                {
+                    Mob m = character as Mob;
+                    m.SnapToPosition(m.StartPosX, m.StartPosZ);
                 }
             }
         }

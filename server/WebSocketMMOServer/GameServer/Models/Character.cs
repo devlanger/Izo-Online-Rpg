@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using WebSocketMMOServer.GameServer.Packets.Outgoing;
 
 namespace WebSocketMMOServer.GameServer
 {
@@ -49,6 +50,30 @@ namespace WebSocketMMOServer.GameServer
         public ItemsContainer GetInventoryContainer()
         {
             return ServerManager.Instance.ItemsManager.GetContainer(Id);
+        }
+
+        public void SetDestination(short posX, short posZ)
+        {
+            StatsContainer container = GetStatsContainer();
+            container.SetStat(StatType.POS_X, (short)posX);
+            container.SetStat(StatType.POS_Z, (short)posZ);
+
+            foreach (var item in ServerManager.Instance.CharactersManager.GetClientsInRange(Position, 50, Id))
+            {
+                Server.Instance.SendData(item.Value.ip, new SetDestinationPacket(this));
+            }
+        }
+
+        public void SnapToPosition(short posX, short posZ)
+        {
+            StatsContainer container = GetStatsContainer();
+            container.SetStat(StatType.POS_X, (short)posX);
+            container.SetStat(StatType.POS_Z, (short)posZ);
+
+            foreach (var item in ServerManager.Instance.CharactersManager.GetClientsInRange(Position, 50))
+            {
+                Server.Instance.SendData(item.Value.ip, new SnapPositionPacket(this));
+            }
         }
     }
 }

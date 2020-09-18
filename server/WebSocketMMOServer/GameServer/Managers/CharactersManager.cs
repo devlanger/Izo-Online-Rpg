@@ -25,11 +25,12 @@ namespace WebSocketMMOServer.GameServer
                 DataRow row = mobsTable.Rows[i];
 
                 int id = lastId++;
-                Character x = CharactersManager.CreateCharacter(id);
+                Mob x = CharactersManager.CreateMob(id);
                 StatsContainer stats = x.GetStatsContainer();
                 stats.SetStat(StatType.NAME, "Gnome");
                 stats.SetStat(StatType.POS_X, (short)row["pos_x"]);
                 stats.SetStat(StatType.POS_Z, (short)row["pos_z"]);
+                x.SetSpawnPosition((short)row["pos_x"], (short)row["pos_z"]);
 
                 AddCharacter(x);
             }
@@ -43,6 +44,13 @@ namespace WebSocketMMOServer.GameServer
             }
 
             return null;
+        }
+
+        public static Mob CreateMob(int id)
+        {
+            Mob character = new Mob(id);
+            ServerManager.Instance.StatsManager.AddStatsForCharacter(character);
+            return character;
         }
 
         public static Character CreateCharacter(int id)

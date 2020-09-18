@@ -30,6 +30,11 @@ namespace WebSocketMMOServer
             Character target = ServerManager.Instance.CharactersManager.GetCharacterById(targetId);
             if(target != null)
             {
+                if(target.IsDead)
+                {
+                    return;
+                }
+
                 foreach (var client in ServerManager.Instance.CharactersManager.GetClientsInRange(arg1.SelectedCharacter.Position))
                 {
                     Server.Instance.SendData(client.Value.ip, new ExecuteUseSkillPacket(arg1.SelectedCharacter.Id, targetId, skillId));
@@ -183,21 +188,7 @@ namespace WebSocketMMOServer
 
         private static void SetDestinationLogic(Client client, short posX, short posZ)
         {
-            if (client.SelectedCharacter == null)
-            {
-                return;
-            }
-
-            if (ServerManager.Instance.StatsManager.GetContainerForCharacter(client.SelectedCharacter.Id, out StatsContainer container))
-            {
-                container.SetStat(StatType.POS_X, posX);
-                container.SetStat(StatType.POS_Z, posZ);
-
-                foreach (var item in ServerManager.Instance.CharactersManager.GetClientsInRange(client.SelectedCharacter.Position, 50, client.SelectedCharacter.Id))
-                {
-                    Server.Instance.SendData(item.Value.ip, new SetDestinationPacket(client.SelectedCharacter));
-                }
-            }
+            client.SelectedCharacter.SetDestination(posX, posZ);
         }
     }
 }

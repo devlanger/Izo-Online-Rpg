@@ -57,7 +57,7 @@ public class CharactersManager : MonoBehaviour
         }
 
         OnCharacterDespawned(id, characters[id]);
-        Destroy(characters[id].gameObject);
+        Destroy(characters[id].gameObject, 1);
         characters.Remove(id);
     }
 }
