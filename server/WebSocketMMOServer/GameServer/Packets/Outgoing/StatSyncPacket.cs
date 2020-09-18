@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using WebSocketMMOServer.GameServer.Models;
 
 namespace WebSocketMMOServer.GameServer.Packets.Outgoing
 {

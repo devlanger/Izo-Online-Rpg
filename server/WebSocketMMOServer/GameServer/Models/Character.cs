@@ -45,5 +45,10 @@ namespace WebSocketMMOServer.GameServer
         {
             return ServerManager.Instance.StatsManager.GetContainerForCharacter(Id);
         }
+
+        public ItemsContainer GetInventoryContainer()
+        {
+            return ServerManager.Instance.ItemsManager.GetContainer(Id);
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class GamePacketsImpl
 {
@@ -17,7 +18,50 @@ public class GamePacketsImpl
         { GamePacketType.SET_DESTINATION, SetDestinationImpl },
         { GamePacketType.DAMAGE_INFO, DamageInfoImpl },
         { GamePacketType.SYNC_STAT, SyncStatImpl },
+        { GamePacketType.SYNC_INVENTORY, SyncInventoryImpl },
+        { GamePacketType.EXECUTE_SKILL_TARGET, ExecuteSkillImpl },
     };
+
+    private static void ExecuteSkillImpl(BinaryReader reader)
+    {
+        int attackerId = reader.ReadInt32();
+        int targetId = reader.ReadInt32();
+        int skillId = reader.ReadInt32();
+
+        Debug.Log(string.Format("Attacker [{0}] Used skill [{1}] on target [{2}]", attackerId, skillId, targetId));
+
+        Character attacker = CharactersManager.Instance.GetPlayer(attackerId);
+        if (attacker != null)
+        {
+            attacker.LastTargetId = targetId;
+            SkillDataHandler data = SkillsManager.Instance.GetSkillData(skillId);
+            if (data == null)
+            {
+                Debug.LogError("No skill data found: " + skillId);
+                return;
+            }
+
+            var director = attacker.GetComponent<PlayableDirector>();
+            director.time = 0;
+            //
+            director.Play(data.animationClip);
+        }
+    }
+
+    private static void SyncInventoryImpl(BinaryReader reader)
+    {
+        Character c = CharactersManager.Instance.GetLocalPlayer();
+        ushort count = reader.ReadUInt16();
+        for (int i = 0; i < count; i++)
+        {
+            ushort slot = reader.ReadUInt16();
+            int itemId = reader.ReadInt32();
+
+            c.SetItem(slot, itemId);
+        }
+
+        c.RefreshInventory();
+    }
 
     private static void SyncStatImpl(BinaryReader reader)
     {
@@ -61,9 +105,9 @@ public class GamePacketsImpl
 
         Character c = CharactersManager.Instance.GetPlayer(id);
         Character target = CharactersManager.Instance.GetPlayer(targetId);
-        if(c != null)
+        if (c != null)
         {
-            c.GetComponentInChildren<Animator>().SetTrigger("attack"); 
+            c.GetComponentInChildren<Animator>().SetTrigger("attack");
             if (target != null)
             {
                 c.LookAt(target.transform.position);
@@ -74,7 +118,7 @@ public class GamePacketsImpl
     public static void ExecutePacket(GamePacketType type, BinaryReader reader)
     {
         Debug.Log("Execute packet: " + type);
-        if(packetsImplementation.ContainsKey(type))
+        if (packetsImplementation.ContainsKey(type))
         {
             packetsImplementation[type].Invoke(reader);
         }
@@ -108,7 +152,7 @@ public class GamePacketsImpl
         short posY = reader.ReadInt16();
 
         Character p = CharactersManager.Instance.GetPlayer(id);
-        if(p != null)
+        if (p != null)
         {
             Vector3 destination = new Vector3(posX, 0, posY);
             Vector3 pos = p.transform.position;
@@ -131,14 +175,14 @@ public class GamePacketsImpl
         int id = reader.ReadInt32();
         short posX = reader.ReadInt16();
         short posY = reader.ReadInt16();
-        
+
         short lvl = reader.ReadInt16();
         int exp = reader.ReadInt16();
 
         Character c = CharactersManager.Instance.GetPlayer(id);
         c.stats[StatType.EXPERIENCE] = exp;
         c.stats[StatType.LEVEL] = lvl;
-        
+
         Debug.Log("Set player: " + c.Data.id);
         PlayerController.Instance.SetPlayer(c);
 

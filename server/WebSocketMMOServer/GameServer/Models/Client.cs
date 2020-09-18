@@ -32,7 +32,14 @@ namespace WebSocketMMOServer
         public void BindEvents()
         {
             StatsContainer container = ServerManager.Instance.StatsManager.GetContainerForCharacter(SelectedCharacter.Id);
+
             container.OnStatChanged += Container_OnStatChanged;
+            SelectedCharacter.GetInventoryContainer().InventoryChanged += Client_InventoryChanged;
+        }
+
+        private void Client_InventoryChanged()
+        {
+            Server.Instance.SendData(ip, new SyncInventoryPacket(SelectedCharacter.GetInventoryContainer()));
         }
 
         private void Container_OnStatChanged(StatType arg1, object arg2)

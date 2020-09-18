@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class CharactersManager : MonoBehaviour
@@ -41,6 +42,11 @@ public class CharactersManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    public Character GetLocalPlayer()
+    {
+        return PlayerController.Instance.Target;
     }
 
     public void DespawnCharacter(int id)

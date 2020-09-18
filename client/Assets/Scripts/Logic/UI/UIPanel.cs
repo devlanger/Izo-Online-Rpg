@@ -10,6 +10,8 @@ public class UIPanel : MonoBehaviour
 
     private CanvasGroup group;
 
+    public bool Active { get; private set; }
+
     private void Awake()
     {
         group = GetComponent<CanvasGroup>();
@@ -38,6 +40,7 @@ public class UIPanel : MonoBehaviour
         group.alpha = 1;
         group.interactable = true;
         group.blocksRaycasts = true;
+        Active = true;
     }
 
     [ContextMenu("Deactivate")]
@@ -51,5 +54,18 @@ public class UIPanel : MonoBehaviour
         group.alpha = 0;
         group.interactable = false;
         group.blocksRaycasts = false;
+        Active = false;
+    }
+
+    public void Toggle()
+    {
+        if(Active)
+        {
+            Deactivate();
+        }
+        else
+        {
+            Activate();
+        }
     }
 }

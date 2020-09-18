@@ -35,6 +35,16 @@ namespace WebSocketMMOServer.GameServer
             }
         }
 
+        public Character GetCharacterById(int targetId)
+        {
+            if(characters.ContainsKey(targetId))
+            {
+                return characters[targetId];
+            }
+
+            return null;
+        }
+
         public static Character CreateCharacter(int id)
         {
             Character character = new Character(id);
@@ -46,6 +56,7 @@ namespace WebSocketMMOServer.GameServer
         {
             Player character = new Player(lastId++);
             ServerManager.Instance.StatsManager.AddStatsForCharacter(character);
+            ServerManager.Instance.ItemsManager.AddInventoryForCharacter(character);
             return character;
         }
 
@@ -62,6 +73,7 @@ namespace WebSocketMMOServer.GameServer
             if (character is Player)
             {
                 ServerManager.Instance.StatsManager.SaveStatisticsToDatabase((Player)character);
+                ServerManager.Instance.ItemsManager.RemoveInventoryForCharacter(character.Id);
             }
 
             ServerManager.Instance.StatsManager.RemoveStatsForCharacter(character.Id);

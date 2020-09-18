@@ -23,7 +23,26 @@ namespace WebSocketMMOServer
 
         private static void UseSkillImpl(Client arg1, BinaryReader reader)
         {
-            int targetId = reader.ReadInt32();
+            int skillId = reader.ReadInt32();
+
+            Console.WriteLine("Use skill: " + skillId);
+            int targetId = (int)arg1.SelectedCharacter.GetStatsContainer().GetStat(StatType.TARGET_ID).value;
+            Character target = ServerManager.Instance.CharactersManager.GetCharacterById(targetId);
+            if(target != null)
+            {
+                foreach (var client in ServerManager.Instance.CharactersManager.GetClientsInRange(arg1.SelectedCharacter.Position))
+                {
+                    Server.Instance.SendData(client.Value.ip, new ExecuteUseSkillPacket(arg1.SelectedCharacter.Id, targetId, skillId));
+                }
+
+                ServerManager.Instance.CombatManager.DealDamage(arg1.SelectedCharacter, target, new AttackData()
+                {
+                    attackerId = arg1.SelectedCharacter.Id,
+                    targetId = target.Id,
+                    damage = (ushort)new Random().Next(30, 60),
+                    damageType = 0
+                });
+            }
         }
 
         private static void SetAttackTargetImpl(Client arg1, BinaryReader reader)

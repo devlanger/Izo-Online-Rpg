@@ -39,6 +39,8 @@ namespace WebSocketMMOServer.GameServer
                                 (short)GetStat(selectedCharacter.Id, StatType.POS_Z),
                                 (int)GetStat(selectedCharacter.Id, StatType.EXPERIENCE));
 
+            
+
             DatabaseManager.InsertQuery(query);
         }
 

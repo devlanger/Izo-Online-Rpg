@@ -10,7 +10,7 @@ namespace WebSocketMMOServer.GameServer.Packets
         {
             ItemsContainer container = ServerManager.Instance.ItemsManager.GetContainer(containerId);
 
-            foreach (var item in container.items)
+            foreach (var item in container.Items)
             {
                 writer.Write(item.Key);
                 writer.Write(item.Value.uniqueId);

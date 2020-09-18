@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace WebSocketMMOServer.GameServer.Models
+namespace WebSocketMMOServer.GameServer
 {
     public class AttackData
     {
