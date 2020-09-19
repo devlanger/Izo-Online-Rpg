@@ -9,6 +9,7 @@ public class CharacterCreationController : MonoBehaviour
 
     public int heroClass = 0;
     public int race = 0;
+    public int kingdom = 0;
 
     [SerializeField]
     private InputField nicknameField;
@@ -32,6 +33,11 @@ public class CharacterCreationController : MonoBehaviour
         this.race = race;
     }
 
+    public void SetKingdom(int kingdom)
+    {
+        this.kingdom = kingdom;
+    }
+
     public void EnterWorld()
     {
         if(nicknameField.text.Length < 3)
@@ -44,6 +50,7 @@ public class CharacterCreationController : MonoBehaviour
         packet.writer.Write((string)nicknameField.text);
         packet.writer.Write((byte)heroClass);
         packet.writer.Write((byte)race);
+        packet.writer.Write((byte)kingdom);
 
         Connection.Instance.SendData(packet);
     }

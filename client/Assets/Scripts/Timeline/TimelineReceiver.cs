@@ -5,8 +5,7 @@ using UnityEngine.Playables;
 
 public class TimelineReceiver : MonoBehaviour, INotificationReceiver
 {
-    [SerializeField]
-    private Character user;
+    public Character user;
 
     public void OnNotify(Playable origin, INotification notification, object context)
     {

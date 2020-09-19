@@ -125,6 +125,8 @@ namespace WebSocketMMOServer.GameServer
 
         public event Action<StatType, object> OnStatChanged = delegate { };
 
+        public Dictionary<int, float> skillsUseTime = new Dictionary<int, float>();
+
         public StatsContainer(StatsManager manager)
         {
             this.manager = manager;
@@ -149,6 +151,25 @@ namespace WebSocketMMOServer.GameServer
         {
             stats[type] = v;
             OnStatChanged(type, v);
+        }
+
+        public bool CanUseSkill(SkillData data)
+        {
+            if (skillsUseTime.ContainsKey(data.baseId))
+            {
+                if (ServerManager.Instance.TickManager.Time < skillsUseTime[data.baseId] + data.cooldown)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 }

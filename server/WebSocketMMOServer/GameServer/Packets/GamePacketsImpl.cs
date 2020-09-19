@@ -35,6 +35,28 @@ namespace WebSocketMMOServer
                     return;
                 }
 
+                var data = ServerManager.Instance.SkillsManager.GetSkill(skillId);
+                if (data != null)
+                {
+                    StatsContainer stats = arg1.SelectedCharacter.GetStatsContainer();
+                    if (stats.CanUseSkill(data))
+                    {
+                        float time = ServerManager.Instance.TickManager.Time;
+                        if (!stats.skillsUseTime.TryAdd(data.baseId, time))
+                        {
+                            stats.skillsUseTime[data.baseId] = time;
+                        }
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    return;
+                }
+
                 foreach (var client in ServerManager.Instance.CharactersManager.GetClientsInRange(arg1.SelectedCharacter.Position))
                 {
                     Server.Instance.SendData(client.Value.ip, new ExecuteUseSkillPacket(arg1.SelectedCharacter.Id, targetId, skillId));
@@ -111,11 +133,12 @@ namespace WebSocketMMOServer
                 {
                     container.SetStat(StatType.NAME, (string)characterData["name"]);
                     container.SetStat(StatType.LEVEL, (short)characterData["lvl"]);
-                    container.SetStat(StatType.RACE, (byte)characterData["ch_class"]);
-                    container.SetStat(StatType.CLASS, (byte)characterData["race"]);
+                    container.SetStat(StatType.RACE, (byte)characterData["race"]);
+                    container.SetStat(StatType.CLASS, (byte)characterData["ch_class"]);
                     container.SetStat(StatType.POS_X, (short)characterData["pos_x"]);
                     container.SetStat(StatType.POS_Z, (short)characterData["pos_z"]);
                     container.SetStat(StatType.EXPERIENCE, (int)characterData["exp"]);
+                    container.SetStat(StatType.KINGDOM, (byte)characterData["kingdom"]);
                 }
 
                 client.BindEvents();
@@ -157,16 +180,21 @@ namespace WebSocketMMOServer
             string nickname = reader.ReadString();
             byte @class = reader.ReadByte();
             byte race = reader.ReadByte();
+            byte kingdom = reader.ReadByte();
+
             short posX = 70;
             short posZ = 105;
 
+            posX = (short)KingdomsManager.kingdoms[kingdom].spawnPoint.X;
+            posZ = (short)KingdomsManager.kingdoms[kingdom].spawnPoint.Z;
+            
             if(!client.LoggedIn)
             {
                 return;
             }
 
-            string query = string.Format(@"INSERT INTO characters(account_id, name, lvl, race, ch_class, pos_x, pos_z) VALUES('{0}','{1}','{2}', '{3}', '{4}', '{5}', '{6}')",
-                client.accountId, nickname, 1, race, @class, posX, posZ);
+            string query = string.Format(@"INSERT INTO characters(account_id, name, lvl, race, ch_class, pos_x, pos_z, kingdom) VALUES('{0}','{1}','{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
+                client.accountId, nickname, 1, race, @class, posX, posZ, kingdom);
 
             long id = DatabaseManager.InsertQuery(query);
             if(id != -1)

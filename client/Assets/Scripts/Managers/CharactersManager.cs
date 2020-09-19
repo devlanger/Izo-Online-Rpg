@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class CharactersManager : MonoBehaviour
 {
@@ -40,15 +41,21 @@ public class CharactersManager : MonoBehaviour
         if(mobData != null)
         {
             GameObject model = Instantiate(mobData.characterModel, character.transform.position - Vector3.up, character.transform.rotation, character.transform);
-            Animator modelAnimator = model.GetComponent<Animator>();
-            character.Animator.runtimeAnimatorController = modelAnimator.runtimeAnimatorController;
-            character.Animator.avatar = modelAnimator.avatar;
-            Destroy(modelAnimator);
-            character.Animator.Rebind();
 
             Destroy(character.baseModel);
             character.baseModel = model;
         }
+
+        Animator modelAnimator = character.baseModel.GetComponent<Animator>();
+        //character.Animator.runtimeAnimatorController = modelAnimator.runtimeAnimatorController;
+        //character.Animator.avatar = modelAnimator.avatar;
+        //character.Animator.Rebind();
+
+        character.Animator = modelAnimator;
+        var pd = character.baseModel.AddComponent<PlayableDirector>();
+        var tr = character.baseModel.AddComponent<TimelineReceiver>();
+        tr.user = character;
+        
 
         OnCharacterSpawned(spawnData.id, character);
         characters.Add(spawnData.id, character);

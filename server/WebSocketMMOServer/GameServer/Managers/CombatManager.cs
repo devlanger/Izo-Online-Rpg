@@ -92,7 +92,10 @@ namespace WebSocketMMOServer.GameServer
                 if (target is Player)
                 {
                     target.GetStatsContainer().SetStat(StatType.HEALTH, (int)30);
-                    target.SnapToPosition((short)80, (short)105);
+
+                    short posX = (short)KingdomsManager.kingdoms[(byte)target.GetStat(StatType.KINGDOM)].spawnPoint.X;
+                    short posZ = (short)KingdomsManager.kingdoms[(byte)target.GetStat(StatType.KINGDOM)].spawnPoint.Z;
+                    target.SnapToPosition((short)posX, (short)posZ);
                 }
                 else
                 {
@@ -126,7 +129,7 @@ namespace WebSocketMMOServer.GameServer
                         {
                             inventory.AddItem(freeSlot, new ItemData()
                             {
-                                baseId = 1,
+                                baseId = new Random().Next(1, 4),
                                 uniqueId = 1
                             });
                         }

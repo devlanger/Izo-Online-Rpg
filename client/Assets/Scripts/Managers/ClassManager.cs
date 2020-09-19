@@ -9,7 +9,7 @@ public class ClassManager : MonoBehaviour
 
 public enum Class
 {
-    ZERKER = 1,
-    HAWKEYE = 2,
-    SORCERER = 3,
+    ZERKER = 0,
+    HAWKEYE = 1,
+    SORCERER = 2,
 }

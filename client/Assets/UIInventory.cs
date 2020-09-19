@@ -28,7 +28,7 @@ public class UIInventory : MonoBehaviour
         obj.OnInventoryChanged += Obj_OnInventoryChanged;
     }
 
-    private void Obj_OnInventoryChanged(Dictionary<int, ItemData> obj)
+    private void Obj_OnInventoryChanged(Dictionary<int, ItemInstance> obj)
     {
         for (int i = 0; i < items.Count; i++)
         {

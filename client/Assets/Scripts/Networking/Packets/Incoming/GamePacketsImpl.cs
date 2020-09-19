@@ -60,9 +60,8 @@ public class GamePacketsImpl
                 return;
             }
 
-            var director = attacker.GetComponent<PlayableDirector>();
+            var director = attacker.GetComponentInChildren<PlayableDirector>();
             director.time = 0;
-            //
             director.Play(data.animationClip);
         }
     }

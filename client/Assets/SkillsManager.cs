@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -25,5 +26,10 @@ public class SkillsManager : Singleton<SkillsManager>
         SkillDataHandler handler = skills.Find(s => s.id == id);
         skillData = handler;
         return handler != null;
+    }
+
+    public List<SkillDataHandler> GetSkillsForClass(Class @class)
+    {
+        return skills.Where(s => s.charClass == @class).OrderBy(s => s.reqLvl).ToList();
     }
 }

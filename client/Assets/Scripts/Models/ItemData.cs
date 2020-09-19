@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public class ItemData
+[CreateAssetMenu(menuName = "Data/Item Data")]
+public class ItemData : ScriptableObject
 {
     public int id;
-    public int uniqueId;
+    public string name;
+    public Sprite icon;
+    public string description;
+    public int reqLevel;
 }

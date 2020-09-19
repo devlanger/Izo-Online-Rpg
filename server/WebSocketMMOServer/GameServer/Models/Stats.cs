@@ -19,4 +19,5 @@
 
     /// COMBAT
     TARGET_ID = 13,
+    KINGDOM = 14,
 }

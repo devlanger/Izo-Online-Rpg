@@ -20,7 +20,7 @@ public class Character : MonoBehaviour
     public CharacterData Data { get; set; }
     public int LastTargetId { get; set; }
 
-    public Dictionary<int, ItemData> items = new Dictionary<int, ItemData>();
+    public Dictionary<int, ItemInstance> items = new Dictionary<int, ItemInstance>();
 
     public Dictionary<StatType, object> stats = new Dictionary<StatType, object>()
     {
@@ -40,7 +40,7 @@ public class Character : MonoBehaviour
     };
 
     public event Action<StatType, object> OnStatChanged = delegate { };
-    public event Action<Dictionary<int, ItemData>> OnInventoryChanged = delegate { };
+    public event Action<Dictionary<int, ItemInstance>> OnInventoryChanged = delegate { };
 
     public void MoveTo(Vector3 point)
     {
@@ -55,7 +55,7 @@ public class Character : MonoBehaviour
 
     public void SetItem(ushort slot, int itemId)
     {
-        items[slot] = new ItemData()
+        items[slot] = new ItemInstance()
         {
             id = itemId
         };
