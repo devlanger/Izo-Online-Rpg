@@ -38,6 +38,14 @@ namespace WebSocketMMOServer.GameServer
             this.Id = id;
         }
 
+        public void AddStatInt(StatType stat, int goldReward)
+        {
+            var stats = GetStatsContainer();
+
+            int gold = (int)stats.GetStat(stat).value;
+            stats.SetStat(stat, (int)(gold + goldReward));
+        }
+
         public object GetStat(StatType stat)
         {
             return ServerManager.Instance.StatsManager.GetStat(Id, stat);
@@ -48,9 +56,9 @@ namespace WebSocketMMOServer.GameServer
             return ServerManager.Instance.StatsManager.GetContainerForCharacter(Id);
         }
 
-        public ItemsContainer GetInventoryContainer()
+        public ItemsContainer GetItemsContainer(ItemsContainerId id)
         {
-            return ServerManager.Instance.ItemsManager.GetContainer(Id);
+            return ServerManager.Instance.ItemsManager.GetContainer(id, Id);
         }
 
         public void SetDestination(short posX, short posZ)

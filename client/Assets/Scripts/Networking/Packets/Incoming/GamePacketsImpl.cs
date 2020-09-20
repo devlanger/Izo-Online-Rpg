@@ -21,7 +21,15 @@ public class GamePacketsImpl
         { GamePacketType.SYNC_INVENTORY, SyncInventoryImpl },
         { GamePacketType.EXECUTE_SKILL_TARGET, ExecuteSkillImpl },
         { GamePacketType.SET_POSITION, SetPositionImpl },
+        { GamePacketType.CHAT_MESSAGE_PACKET, ChatMessageImpl },
     };
+
+    private static void ChatMessageImpl(BinaryReader reader)
+    {
+        string msg = reader.ReadString();
+
+        ChatManager.Instance.AddMessage(msg);
+    }
 
     private static void SetPositionImpl(BinaryReader reader)
     {
@@ -69,16 +77,20 @@ public class GamePacketsImpl
     private static void SyncInventoryImpl(BinaryReader reader)
     {
         Character c = CharactersManager.Instance.GetLocalPlayer();
+        ItemContainerId inventoryId = (ItemContainerId)reader.ReadByte();
         ushort count = reader.ReadUInt16();
+
+        c.itemContainers[inventoryId].Clear();
+
         for (int i = 0; i < count; i++)
         {
             ushort slot = reader.ReadUInt16();
             int itemId = reader.ReadInt32();
 
-            c.SetItem(slot, itemId);
+            c.SetItem(inventoryId, slot, itemId);
         }
 
-        c.RefreshInventory();
+        c.RefreshInventory(inventoryId);
     }
 
     private static void SyncStatImpl(BinaryReader reader)
@@ -156,6 +168,7 @@ public class GamePacketsImpl
             nickname = reader.ReadString(),
             posX = reader.ReadInt16(),
             posZ = reader.ReadInt16(),
+            rotation = reader.ReadInt16(),
             race = reader.ReadByte(),
             @class = reader.ReadByte(),
         };
@@ -197,11 +210,13 @@ public class GamePacketsImpl
         short posY = reader.ReadInt16();
 
         short lvl = reader.ReadInt16();
-        int exp = reader.ReadInt16();
+        int exp = reader.ReadInt32();
+        int gold = reader.ReadInt32();
 
         Character c = CharactersManager.Instance.GetPlayer(id);
         c.stats[StatType.EXPERIENCE] = exp;
         c.stats[StatType.LEVEL] = lvl;
+        c.stats[StatType.GOLD] = gold;
 
         Debug.Log("Set player: " + c.Data.id);
         PlayerController.Instance.SetPlayer(c);

@@ -34,7 +34,7 @@ public class CharactersManager : MonoBehaviour
             return;
         }
 
-        Character character = Instantiate(characterPrefab, new Vector3(spawnData.posX, 1, spawnData.posZ), Quaternion.identity, transform);
+        Character character = Instantiate(characterPrefab, new Vector3(spawnData.posX, 1, spawnData.posZ), Quaternion.Euler(0, spawnData.rotation, 0), transform);
         character.Data = spawnData;
 
         MobData mobData = GetMobData(spawnData.baseId);
@@ -103,6 +103,7 @@ public class CharacterData
     public byte lvl;
     public short posX;
     public short posZ;
+    public short rotation;
     public byte race;
     public byte @class;
 }

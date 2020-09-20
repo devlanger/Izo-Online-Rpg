@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MapController : MonoBehaviour
 {
@@ -13,9 +14,18 @@ public class MapController : MonoBehaviour
     [SerializeField]
     private Transform target;
 
-    private void Start()
+    [SerializeField]
+    private Text coordsText; 
+
+    private IEnumerator Start()
     {
         PlayerController.Instance.OnLocalPlayerChanged += Instance_OnLocalPlayerChanged;
+    
+        while(true)
+        {
+            yield return new WaitForSeconds(0.25f);
+            UpdateMap();
+        }
     }
 
     private void Instance_OnLocalPlayerChanged(Character obj)
@@ -23,7 +33,7 @@ public class MapController : MonoBehaviour
         target = obj.transform;
     }
 
-    private void Update()
+    private void UpdateMap()
     {
         if(target == null)
         {
@@ -39,5 +49,7 @@ public class MapController : MonoBehaviour
         Vector2 finalOffset = targetPos * delta;
 
         mapRect.anchoredPosition = finalOffset;
+
+        coordsText.text = string.Format("x: {0} y: {1}", Mathf.RoundToInt(target.position.x), Mathf.RoundToInt(target.position.z));
     }
 }

@@ -6,9 +6,9 @@ namespace WebSocketMMOServer.GameServer.Packets
 {
     public class RequestItemsList : Packet
     {
-        public RequestItemsList(int containerId) : base()
+        public RequestItemsList(Character user, int containerId) : base()
         {
-            ItemsContainer container = ServerManager.Instance.ItemsManager.GetContainer(containerId);
+            ItemsContainer container = ServerManager.Instance.ItemsManager.GetContainer((ItemsContainerId)containerId, user.Id);
 
             foreach (var item in container.Items)
             {

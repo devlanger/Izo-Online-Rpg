@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7bb603347d6a36841ad2bcbedc5d71b5, type: 3}
-  m_Name: 2_Mask
+  m_Name: 5_GoldenScrapOfFaith
   m_EditorClassIdentifier: 
-  id: 2
-  name: Mask
-  icon: {fileID: 21300000, guid: 5ba8be9f4723c964e9937c9ea7d657ea, type: 3}
+  id: 5
+  name: Golden Scrap of Faith
+  icon: {fileID: 21300000, guid: 02ec34d979718404599b1407f6465a7f, type: 3}
   description: Sword with magical power.
   reqLevel: 1

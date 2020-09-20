@@ -31,17 +31,46 @@ namespace WebSocketMMOServer.GameServer
 
         public void SaveStatisticsToDatabase(Player selectedCharacter)
         {
-            string query = string.Format(@"INSERT INTO characters(id, lvl, pos_x, pos_z, exp) VALUES('{0}', '{1}', '{2}', '{3}', '{4}') ON DUPLICATE KEY UPDATE 
-                                lvl = VALUES(lvl), pos_x = VALUES(pos_x), pos_z = VALUES(pos_z), exp = VALUES(exp)", 
+            string query = string.Format(@"INSERT INTO characters(id, lvl, pos_x, pos_z, exp, gold) VALUES('{0}', '{1}', '{2}', '{3}', '{4}', {5}) ON DUPLICATE KEY UPDATE 
+                                lvl = VALUES(lvl), pos_x = VALUES(pos_x), pos_z = VALUES(pos_z), exp = VALUES(exp), gold = VALUES(gold)",
                                 selectedCharacter.DatabaseId,
-                                (short)GetStat(selectedCharacter.Id, StatType.LEVEL), 
+                                (short)GetStat(selectedCharacter.Id, StatType.LEVEL),
                                 (short)GetStat(selectedCharacter.Id, StatType.POS_X),
                                 (short)GetStat(selectedCharacter.Id, StatType.POS_Z),
-                                (int)GetStat(selectedCharacter.Id, StatType.EXPERIENCE));
+                                (int)GetStat(selectedCharacter.Id, StatType.EXPERIENCE),
+                                (int)GetStat(selectedCharacter.Id, StatType.GOLD));
 
-            
+
 
             DatabaseManager.InsertQuery(query);
+            SaveItems(selectedCharacter);
+        }
+
+        private void SaveItems(Player selectedCharacter)
+        {
+            var ic = ServerManager.Instance.ItemsManager.GetContainers(selectedCharacter.Id);
+            
+            string invDeleteQuery = string.Format("DELETE FROM items WHERE owner_id IN({0})", selectedCharacter.DatabaseId);
+            string itemValues = "";
+
+            foreach (var container in ic)
+            {
+                foreach (var item in container.Value.Items)
+                {
+                    itemValues += string.Format("({0}, {1}, {2}, {3}, {4}, {5}),", item.Value.uniqueId, item.Value.baseId, item.Value.amount, item.Key, selectedCharacter.DatabaseId, (byte)container.Key);
+                }
+            }
+
+            DatabaseManager.InsertQuery(invDeleteQuery);
+
+            if (itemValues.Length > 0)
+            {
+                itemValues = itemValues.Substring(0, itemValues.Length - 1);
+                string invQuery = string.Format(@"INSERT INTO items(id, base_id, amount, slot, owner_id, inventory_id) VALUES {0}", itemValues);
+
+                Console.WriteLine(invQuery);
+                DatabaseManager.InsertQuery(invQuery);
+            }
         }
 
         public StatsContainer GetContainerForCharacter(int characterId)
@@ -121,6 +150,8 @@ namespace WebSocketMMOServer.GameServer
             { StatType.POS_X, (short)0 },
             { StatType.POS_Z, (short)0 },
             { StatType.TARGET_ID, (int)-1 },
+            { StatType.KINGDOM, (byte)0 },
+            { StatType.ROTATION, (short)0 },
         };
 
         public event Action<StatType, object> OnStatChanged = delegate { };

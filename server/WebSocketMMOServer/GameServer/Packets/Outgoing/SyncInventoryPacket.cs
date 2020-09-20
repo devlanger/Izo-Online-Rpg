@@ -10,6 +10,7 @@ namespace WebSocketMMOServer.GameServer.Packets.Outgoing
         {
             writer.Write((byte)36);
 
+            writer.Write((byte)items.InventoryId);
             writer.Write((ushort)items.Items.Count);
             foreach (var item in items.Items)
             {

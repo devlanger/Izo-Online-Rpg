@@ -4,17 +4,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class DraggableButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDropHandler, IDragHandler
+public class DraggableButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDropHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
     private CanvasGroup group;
+    private LayoutElement layout;
 
     public UnityEvent<PointerEventData> OnDrag;
     public UnityEvent<PointerEventData> OnDrop;
     public UnityEvent<PointerEventData> OnPickup;
     public UnityEvent<PointerEventData> OnRelease;
+    public UnityEvent<PointerEventData> OnHover;
+    public UnityEvent<PointerEventData> OnExitHover;
 
     public Vector3 PickupPosition { get; private set; }
+
+    [SerializeField]
+    private bool makeDraggable = false;
 
     public void ReturnToPickupPosition()
     {
@@ -23,9 +30,35 @@ public class DraggableButton : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
     private void Awake()
     {
+        group = GetComponent<CanvasGroup>();
         if(group == null)
         {
             group = gameObject.AddComponent<CanvasGroup>();
+        }
+
+        layout = GetComponent<LayoutElement>();
+        if (layout == null)
+        {
+            layout = gameObject.AddComponent<LayoutElement>();
+        }
+
+        if (makeDraggable)
+        {
+            OnPickup.AddListener((ev) =>
+            {
+                SetInteractable(false);
+            });
+
+            OnRelease.AddListener((ev) =>
+            {
+                SetInteractable(true);
+                ReturnToPickupPosition();
+            });
+
+            OnDrag.AddListener((ev) =>
+            {
+                transform.position = Input.mousePosition;
+            });
         }
     }
 
@@ -53,5 +86,15 @@ public class DraggableButton : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     void IDropHandler.OnDrop(PointerEventData eventData)
     {
         OnDrop.Invoke(eventData);
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        OnHover.Invoke(eventData);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        OnExitHover.Invoke(eventData);
     }
 }

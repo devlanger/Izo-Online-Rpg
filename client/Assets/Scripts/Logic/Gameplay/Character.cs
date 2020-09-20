@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class Character : MonoBehaviour
@@ -20,7 +21,7 @@ public class Character : MonoBehaviour
     public CharacterData Data { get; set; }
     public int LastTargetId { get; set; }
 
-    public Dictionary<int, ItemInstance> items = new Dictionary<int, ItemInstance>();
+    public Dictionary<ItemContainerId, ItemsContainer> itemContainers = new Dictionary<ItemContainerId, ItemsContainer>();
 
     public Dictionary<StatType, object> stats = new Dictionary<StatType, object>()
     {
@@ -40,7 +41,6 @@ public class Character : MonoBehaviour
     };
 
     public event Action<StatType, object> OnStatChanged = delegate { };
-    public event Action<Dictionary<int, ItemInstance>> OnInventoryChanged = delegate { };
 
     public void MoveTo(Vector3 point)
     {
@@ -53,21 +53,29 @@ public class Character : MonoBehaviour
         OnStatChanged(stat, val);
     }
 
-    public void SetItem(ushort slot, int itemId)
+    public void SetItem(ItemContainerId invId, ushort slot, int itemId)
     {
-        items[slot] = new ItemInstance()
+        var ic = itemContainers[invId];
+        ic.items[slot] = new ItemInstance()
         {
             id = itemId
         };
     }
 
-    public void RefreshInventory()
+    public void RefreshInventory(ItemContainerId inventoryId)
     {
-        OnInventoryChanged(items);
+        itemContainers[inventoryId].Refresh();
     }
 
     private void Awake()
     {
+        itemContainers = new Dictionary<ItemContainerId, ItemsContainer>();
+
+        foreach (var item in Enum.GetValues(typeof(ItemContainerId)))
+        {
+            itemContainers.Add((ItemContainerId)item, new ItemsContainer());
+        }
+
         controller = GetComponent<CharacterController>();
         destination = transform.position;
     }
@@ -110,5 +118,22 @@ public class Character : MonoBehaviour
         target.y = 0;
 
         transform.rotation = Quaternion.LookRotation(target);
+    }
+}
+
+public class ItemsContainer
+{
+    public byte inventoryId;
+    public Dictionary<int, ItemInstance> items = new Dictionary<int, ItemInstance>();
+    public event Action<ItemsContainer> OnInventoryChanged = delegate { };
+
+    public void Refresh()
+    {
+        OnInventoryChanged(this);
+    }
+
+    public void Clear()
+    {
+        items.Clear();
     }
 }

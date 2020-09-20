@@ -56,6 +56,19 @@ namespace WebSocketMMOServer.Database
             return results;
         }
 
+        public static int GetLastInsertedId(string tableName)
+        {
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                string lastInsertedQuestQuery = "SELECT `AUTO_INCREMENT`FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'izommo' AND TABLE_NAME = '" + tableName + "'";
+                MySqlCommand command = new MySqlCommand(lastInsertedQuestQuery, conn);
+                command.ExecuteNonQuery();
+                return Convert.ToInt32(command.ExecuteScalar());
+            }
+        }
+
         public static long InsertQuery(string query)
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))

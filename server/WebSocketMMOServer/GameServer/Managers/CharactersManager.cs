@@ -63,6 +63,7 @@ namespace WebSocketMMOServer.GameServer
                 stats.SetStat(StatType.HEALTH, (int)data.health);
                 stats.SetStat(StatType.POS_X, (short)row["pos_x"]);
                 stats.SetStat(StatType.POS_Z, (short)row["pos_z"]);
+                stats.SetStat(StatType.ROTATION, (short)row["rotation"]);
                 x.SetSpawnPosition((short)row["pos_x"], (short)row["pos_z"]);
 
                 AddCharacter(x);

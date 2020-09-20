@@ -117,11 +117,15 @@ namespace WebSocketMMOServer.GameServer
 
                         short level = (short)killerContainer.GetStat(StatType.LEVEL).value;
                         killerContainer.SetStat(StatType.LEVEL, (short)(level + 1));
+
                     }
+
+                    int goldReward = new Random().Next(20, 100);
+                    character.AddStatInt(StatType.GOLD, goldReward);
 
                     int dropOrNot = new Random().Next(0, 4);
 
-                    ItemsContainer inventory = character.GetInventoryContainer();
+                    ItemsContainer inventory = character.GetItemsContainer(ItemsContainerId.INVENTORY);
                     if (inventory != null && dropOrNot == 0)
                     {
                         int freeSlot = inventory.GetFreeSlot();
@@ -129,8 +133,8 @@ namespace WebSocketMMOServer.GameServer
                         {
                             inventory.AddItem(freeSlot, new ItemData()
                             {
-                                baseId = new Random().Next(1, 4),
-                                uniqueId = 1
+                                baseId = new Random().Next(1, 8),
+                                uniqueId = ServerManager.Instance.ItemsManager.lastItemId++
                             });
                         }
                     }

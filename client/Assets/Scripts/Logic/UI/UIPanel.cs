@@ -8,6 +8,9 @@ public class UIPanel : MonoBehaviour
     [SerializeField]
     private bool activeOnStart = false;
 
+    [SerializeField]
+    private bool overrideRaycasts = true;
+
     private CanvasGroup group;
 
     public bool Active { get; private set; }
@@ -38,8 +41,11 @@ public class UIPanel : MonoBehaviour
         }
 
         group.alpha = 1;
-        group.interactable = true;
-        group.blocksRaycasts = true;
+        if (overrideRaycasts)
+        {
+            group.interactable = true;
+            group.blocksRaycasts = true;
+        }
         Active = true;
     }
 
@@ -51,9 +57,12 @@ public class UIPanel : MonoBehaviour
             group = GetComponent<CanvasGroup>();
         }
 
-        group.alpha = 0;
-        group.interactable = false;
-        group.blocksRaycasts = false;
+        group.alpha = 0; 
+        if (overrideRaycasts)
+        {
+            group.interactable = false;
+            group.blocksRaycasts = false;
+        }
         Active = false;
     }
 

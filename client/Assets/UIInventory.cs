@@ -1,45 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class UIInventory : MonoBehaviour
+public class UIInventory : ItemsContainerInventory
 {
-    private Dictionary<int, InventoryButton> items = new Dictionary<int, InventoryButton>();
-
-    [SerializeField]
-    private Transform itemsParent;
-
-    private void Awake()
+    protected override void OnInitializedButton(int slot, InventoryButton button)
     {
-        InventoryButton[] bts = itemsParent.GetComponentsInChildren<InventoryButton>();
-        for (int i = 0; i < bts.Length; i++)
+        button.GetComponentInChildren<DraggableButton>().OnDrop.AddListener((ev) =>
         {
-            items.Add(i, bts[i]);
-        }
-    }
+            DraggableButton dragged = ev.pointerDrag.GetComponent<DraggableButton>();
+            InventoryButton sourceButton = dragged.GetComponentInParent<InventoryButton>();
 
-    private void Start()
-    {
-        PlayerController.Instance.OnLocalPlayerChanged += Instance_OnLocalPlayerChanged;
-    }
-
-    private void Instance_OnLocalPlayerChanged(Character obj)
-    {
-        obj.OnInventoryChanged += Obj_OnInventoryChanged;
-    }
-
-    private void Obj_OnInventoryChanged(Dictionary<int, ItemInstance> obj)
-    {
-        for (int i = 0; i < items.Count; i++)
-        {
-            if(obj.ContainsKey(i))
+            Connection.Instance.SendData(new ItemActionPacket(new ItemActionData()
             {
-                items[i].Fill(obj[i]);
-            }
-            else
-            {
-                items[i].Fill(null);
-            }
-        }
+                sourceSlot = sourceButton.Slot,
+                targetSlot = slot,
+                action = ItemAction.MOVE,
+                sourceContainer = sourceButton.ContainerId,
+                targetContainer = button.ContainerId
+            }));
+        });
     }
 }

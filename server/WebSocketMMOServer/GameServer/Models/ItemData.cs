@@ -8,5 +8,6 @@ namespace WebSocketMMOServer.GameServer
     {
         public int uniqueId;
         public int baseId;
+        public int amount = 1;
     }
 }

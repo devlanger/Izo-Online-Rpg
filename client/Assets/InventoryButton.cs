@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class InventoryButton : MonoBehaviour
@@ -17,8 +19,36 @@ public class InventoryButton : MonoBehaviour
     [SerializeField]
     private CanvasGroup grp;
 
+    public ItemInstance ItemInstanceData;
+    public int Slot { get; set; }
+
+    public ItemContainerId ContainerId { get; set; }
+
+    private void Awake()
+    {
+        var db = GetComponentInChildren<DraggableButton>();
+        db.OnHover.AddListener(Hover);
+        db.OnExitHover.AddListener(EndHover);
+    }
+
+    private void Hover(PointerEventData ev)
+    {
+        if (ItemInstanceData != null && ItemInstanceData.id != 0 && ItemsManager.Instance.GetItemData(ItemInstanceData.id, out ItemData data))
+        {
+            ItemHoverPanel.Instance.panel.Activate();
+            ItemHoverPanel.Instance.Fill(data);
+        }
+    }
+
+    private void EndHover(PointerEventData ev)
+    {
+        ItemHoverPanel.Instance.panel.Deactivate();
+    }
+
     public void Fill(ItemInstance inst)
     {
+        ItemInstanceData = inst;
+
         if(inst == null)
         {
             itemText.text = "";

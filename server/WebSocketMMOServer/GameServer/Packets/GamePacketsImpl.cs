@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.CompilerServices;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -19,7 +20,19 @@ namespace WebSocketMMOServer
             { GamePacketType.CREATE_CHARACTER, CreateCharacterImpl },
             { GamePacketType.SET_ATTACK_TARGET, SetAttackTargetImpl },
             { GamePacketType.USE_SKILL, UseSkillImpl },
+            { GamePacketType.REQUEST_ITEM_ACTION, RequestItemActionImpl },
+            { GamePacketType.CHAT_MESSAGE_PACKET, ChatMessageImpl},
         };
+
+        private static void ChatMessageImpl(Client arg1, BinaryReader reader)
+        {
+            string msg = reader.ReadString();
+            msg = msg.Insert(0, string.Format("{0}: ", (string)arg1.SelectedCharacter.GetStat(StatType.NAME)));
+            foreach (var item in ServerManager.Instance.CharactersManager.clients)
+            {
+                Server.Instance.SendData(item.Value.ip, new ChatMessagePacket(msg));
+            }
+        }
 
         private static void UseSkillImpl(Client arg1, BinaryReader reader)
         {
@@ -69,6 +82,84 @@ namespace WebSocketMMOServer
                     damage = (ushort)new Random().Next(30, 60),
                     damageType = 0
                 });
+            }
+        }
+
+        public enum ItemAction
+        {
+            MOVE = 1,
+            DELETE = 2,
+            USE = 3,
+        }
+
+        private static void RequestItemActionImpl(Client arg1, BinaryReader reader)
+        {
+            ItemAction action = (ItemAction)reader.ReadByte();
+
+            ItemsContainerId sourceContainerId = (ItemsContainerId)reader.ReadByte();
+            ItemsContainerId targetContainerId = (ItemsContainerId)reader.ReadByte();
+            
+            int sourceSlot = reader.ReadInt32();
+            int targetSlot = reader.ReadInt32();
+
+            var containers = ServerManager.Instance.ItemsManager.GetContainers(arg1.SelectedCharacter.Id);
+
+            switch (action)
+            {
+                case ItemAction.MOVE:
+                    var sourceContainer = containers[sourceContainerId];
+                    var targetContainer = containers[targetContainerId];
+
+                    if (targetContainerId == ItemsContainerId.SHOP)
+                    {
+                        if (sourceContainerId == ItemsContainerId.INVENTORY)
+                        {
+                            Console.WriteLine("Sell item");
+                            sourceContainer.RemoveItem(sourceSlot);
+                            arg1.SelectedCharacter.AddStatInt(StatType.GOLD, 100);
+                        }
+
+
+                        return;
+                    }
+
+                    if (sourceContainerId == ItemsContainerId.SHOP)
+                    {
+                        if (targetContainerId == ItemsContainerId.INVENTORY)
+                        {
+                            Console.WriteLine("Buy item slot: " + sourceSlot);
+                        }
+                        return;
+                    }
+
+                    if (sourceContainer.Items.ContainsKey(sourceSlot))
+                    {
+                        var sourceItem = sourceContainer.Items[sourceSlot];
+                        ItemData targetItem = null;
+
+                        if (targetContainer.Items.ContainsKey(targetSlot))
+                        {
+                            targetItem = targetContainer.Items[targetSlot];
+                        }
+
+                        sourceContainer.RemoveItem(sourceSlot, true); 
+                        
+                        if (targetItem != null)
+                        {
+                            targetContainer.RemoveItem(targetSlot, true);
+                        }
+
+                        targetContainer.AddItem(targetSlot, sourceItem, true);
+
+                        if (targetItem != null)
+                        {
+                            sourceContainer.AddItem(sourceSlot, targetItem, true);
+                        }
+
+                        containers[sourceContainerId].Refresh();
+                        containers[targetContainerId].Refresh();
+                    }
+                    break;
             }
         }
 
@@ -139,6 +230,22 @@ namespace WebSocketMMOServer
                     container.SetStat(StatType.POS_Z, (short)characterData["pos_z"]);
                     container.SetStat(StatType.EXPERIENCE, (int)characterData["exp"]);
                     container.SetStat(StatType.KINGDOM, (byte)characterData["kingdom"]);
+                    container.SetStat(StatType.GOLD, (int)characterData["gold"]);
+                }
+
+                Dictionary<ItemsContainerId, ItemsContainer> containers = ServerManager.Instance.ItemsManager.GetContainers(character.Id);
+                DataTable itemsTable = DatabaseManager.ReturnQuery(string.Format("SELECT * FROM items WHERE owner_id='{0}'", character.DatabaseId));
+                for (int i = 0; i < itemsTable.Rows.Count; i++)
+                {
+                    DataRow itemRow = itemsTable.Rows[i];
+                    ItemsContainerId inventoryId = (ItemsContainerId)(byte)itemRow["inventory_id"];
+
+                    containers[inventoryId].AddItem((int)itemRow["slot"], new ItemData()
+                    {
+                        uniqueId = (int)itemRow["id"],
+                        baseId = (int)itemRow["base_id"],
+                        amount = (int)itemRow["amount"],
+                    });
                 }
 
                 client.BindEvents();
@@ -166,8 +273,13 @@ namespace WebSocketMMOServer
                 packet.writer.Write((short)characterData["pos_z"]);
                 packet.writer.Write((short)characterData["lvl"]);
                 packet.writer.Write((int)characterData["exp"]);
+                packet.writer.Write((int)characterData["gold"]);
 
                 Server.Instance.SendData(client.ip, packet);
+                foreach (var ic in containers)
+                {
+                    Server.Instance.SendData(client.ip, new SyncInventoryPacket(ic.Value));
+                }
             }
             else
             {

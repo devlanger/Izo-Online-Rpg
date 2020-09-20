@@ -150,6 +150,7 @@ GameObject:
   - component: {fileID: 2087102239668070819}
   - component: {fileID: 8227037796945219546}
   - component: {fileID: 828563564049653142}
+  - component: {fileID: 1394773349364505918}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -226,6 +227,31 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1394773349364505918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5095529257546836771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c7328e7a6c9d6f4c836bc20f794ccfe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnDrag:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDrop:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPickup:
+    m_PersistentCalls:
+      m_Calls: []
+  OnRelease:
+    m_PersistentCalls:
+      m_Calls: []
+  makeDraggable: 1
 --- !u!1 &5897976443331926099
 GameObject:
   m_ObjectHideFlags: 0

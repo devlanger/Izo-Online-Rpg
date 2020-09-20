@@ -17,7 +17,7 @@
     EXPERIENCE = 11,
     GOLD = 12,
 
-    /// COMBAT
     TARGET_ID = 13,
     KINGDOM = 14,
+    ROTATION = 15,
 }

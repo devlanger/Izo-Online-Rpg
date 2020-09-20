@@ -13,5 +13,7 @@ namespace WebSocketMMOServer
         SET_ATTACK_TARGET = 12,
 
         USE_SKILL = 21,
+        REQUEST_ITEM_ACTION = 22,
+        CHAT_MESSAGE_PACKET = 23,
     }
 }
