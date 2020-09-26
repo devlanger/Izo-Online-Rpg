@@ -37,6 +37,10 @@ public class CharactersManager : MonoBehaviour
         Character character = Instantiate(characterPrefab, new Vector3(spawnData.posX, 1, spawnData.posZ), Quaternion.Euler(0, spawnData.rotation, 0), transform);
         character.Data = spawnData;
 
+        character.SetStat(StatType.LEVEL, spawnData.lvl);
+        character.SetStat(StatType.HEALTH, spawnData.health);
+        character.SetStat(StatType.MAX_HEALTH, spawnData.maxHealth);
+
         MobData mobData = GetMobData(spawnData.baseId);
         if(mobData != null)
         {
@@ -106,4 +110,6 @@ public class CharacterData
     public short rotation;
     public byte race;
     public byte @class;
+    public int maxHealth;
+    public int health;
 }

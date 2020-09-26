@@ -109,17 +109,25 @@ public class GamePacketsImpl
         int targetId = reader.ReadInt32();
         StatType type = (StatType)reader.ReadByte();
         Character target = CharactersManager.Instance.GetPlayer(targetId);
-
         switch (type)
         {
             case StatType.HEALTH:
+            case StatType.MAX_HEALTH:
             case StatType.MANA:
             case StatType.EXPERIENCE:
             case StatType.GOLD:
-                target.SetStat(type, reader.ReadInt32());
+                var val = reader.ReadInt32();
+                if (target != null)
+                {
+                    target.SetStat(type, val);
+                }
                 break;
             case StatType.LEVEL:
-                target.SetStat(type, reader.ReadInt16());
+                var valShort = reader.ReadInt16();
+                if (target != null)
+                {
+                    target.SetStat(type, valShort);
+                }
                 break;
 
         }
@@ -158,10 +166,17 @@ public class GamePacketsImpl
 
     public static void ExecutePacket(GamePacketType type, BinaryReader reader)
     {
-        Debug.Log("Execute packet: " + type);
-        if (packetsImplementation.ContainsKey(type))
+        try
         {
-            packetsImplementation[type].Invoke(reader);
+            Debug.Log("Execute packet: " + type);
+            if (packetsImplementation.ContainsKey(type))
+            {
+                packetsImplementation[type].Invoke(reader);
+            }
+        }
+        catch(Exception ex)
+        {
+            Debug.LogError(ex.ToString());
         }
     }
 
@@ -182,8 +197,10 @@ public class GamePacketsImpl
             rotation = reader.ReadInt16(),
             race = reader.ReadByte(),
             @class = reader.ReadByte(),
+            health = reader.ReadInt32(),
+            maxHealth = reader.ReadInt32(),
         };
-        Debug.Log(data.id + " " + data.nickname);
+
         CharactersManager.Instance.SpawnCharacter(data);
     }
 
@@ -197,7 +214,6 @@ public class GamePacketsImpl
         Character p = CharactersManager.Instance.GetPlayer(id);
         if (p != null)
         {
-            Debug.Log("Move " + p.Data.id + " to " + posX);
             Vector3 destination = new Vector3(posX, 0, posY);
             Vector3 pos = p.transform.position;
             pos.y = 0;
@@ -210,6 +226,7 @@ public class GamePacketsImpl
     private static void DespawnCharacterImpl(BinaryReader reader)
     {
         int id = reader.ReadInt32();
+        Debug.Log("Despawn player: " + id);
 
         CharactersManager.Instance.DespawnCharacter(id);
     }

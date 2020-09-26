@@ -19,6 +19,8 @@ namespace WebSocketMMOServer.GameServer.Packets.Outgoing
             writer.Write((short)stats.GetStat(StatType.ROTATION).value);
             writer.Write((byte)stats.GetStat(StatType.RACE).value);
             writer.Write((byte)stats.GetStat(StatType.CLASS).value);
+            writer.Write((int)stats.GetStat(StatType.HEALTH).value);
+            writer.Write((int)stats.GetStat(StatType.MAX_HEALTH).value);
         }
     }
 }

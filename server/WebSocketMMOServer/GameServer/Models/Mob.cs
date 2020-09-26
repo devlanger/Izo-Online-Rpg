@@ -19,5 +19,6 @@ namespace WebSocketMMOServer.GameServer
             StartPosX = posX;
             StartPosZ = posZ;
         }
+
     }
 }

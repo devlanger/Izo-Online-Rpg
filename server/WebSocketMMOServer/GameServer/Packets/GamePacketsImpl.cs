@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
@@ -283,9 +284,16 @@ namespace WebSocketMMOServer
 
         public static void ExecutePacket(GamePacketType type, Client client, BinaryReader reader)
         {
-            if(packetsImplementation.ContainsKey(type))
+            try
             {
-                packetsImplementation[type].Invoke(client, reader);
+                if (packetsImplementation.ContainsKey(type))
+                {
+                    packetsImplementation[type].Invoke(client, reader);
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
             }
         }
 

@@ -39,6 +39,11 @@ namespace WebSocketMMOServer.GameServer
             this.Id = id;
         }
 
+        public virtual void Init()
+        {
+            BindEvents();
+        }
+
         public void AddStatInt(StatType stat, int goldReward)
         {
             var stats = GetStatsContainer();
@@ -83,6 +88,25 @@ namespace WebSocketMMOServer.GameServer
             foreach (var item in ServerManager.Instance.CharactersManager.GetClientsInRange(Position, 50))
             {
                 Server.Instance.SendData(item.Value.ip, new SnapPositionPacket(this));
+            }
+        }
+
+        public virtual void BindEvents()
+        {
+            GetStatsContainer().OnStatChanged += Character_OnStatChanged;
+        }
+
+        private void Character_OnStatChanged(StatType arg1, object arg2)
+        {
+            switch(arg1)
+            {
+                case StatType.HEALTH:
+                case StatType.MAX_HEALTH:
+                    foreach (var item in ServerManager.Instance.CharactersManager.GetClientsInRange(Position))
+                    {
+                        Server.Instance.SendData(item.Value.ip, new StatSyncPacket(Id, arg1, (int)arg2));
+                    }
+                    break;
             }
         }
     }
